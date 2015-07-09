@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login test</title>
+	<style type="text/css">
+		input[type='input']{
+			font-family: "consolas";
+			margin: 5px;
+			font-size: 24px;
+			line-height: 2;
+			padding: 5px 8px;
+			letter-spacing: 1px;
+			border-radius: 2px;
+			border: 1px #999 solid;
+		}
+
+		input[type='input']::-moz-placeholder{
+			color: #aaa;
+			font-size: 18px;
+		}
+
+		button{
+			background: #1F6E43;
+			color: white;
+			line-height: 1.3;
+			font-size: 18px;
+			border: 2px solid black;
+		}
+	</style>
+</head>
+<body>
+
+	<input id="user" type="input" placeholder="Your ID"/><br/>
+	<input id="pass" type="input" placeholder="Your password"/><br/>
+	<img id="captchaImage" /><br/>
+	<input id="captcha" type="input" placeholder="Enter the text above"/><br/>
+	<button id="submitButton" type="button">Submit!</button>
+
+	<script src="res/js/jquery.min.js"></script>
+	<script>
+
+	var URL_HSNUGRADE="http://grades.hs.ntnu.edu.tw/online/";
+
+	var token=null;
+
+	var authErrorHandler={
+		"驗證碼輸入錯誤":function(){
+
+		},
+		"連續3次登入錯誤":function(){
+
+		}
+	}
+
+	$(function(){
+		getLoginChallenge();
+		$("#submitButton").click(function(){
+			sendLoginRequest({
+				"Loginid":$("#user").val(),
+				"LoginPwd":$("#pass").val(),
+				"vcode":$("#captcha").val()
+			},token);
+		})
+	});
+		
+
+	function getLoginChallenge(){
+		$.ajax({
+			url:"api/get_token.php",
+			dataType:"json",
+			success:function(resp){
+				$("#captchaImage").attr("src","data:image/gif;base64,"+resp.data.image);
+				token={
+					name :resp.info.token_name,
+					value:resp.info.token_value
+				};
+				console.log("getting token: ",token);
+				console.log("getting captcha: ",resp.data.vcode);
+			},
+		})
+	}
+
+	function sendLoginRequest(data,token){
+		$.ajax({
+			url:"api/auth.php?token="+encodeURI(token.name)+"|"+encodeURI(token.value),
+			type:"POST",
+			dataType:"json",
+			data:data||{},
+			success:function(resp){
+				//console.log(resp);
+				if(resp.status!="ok"){
+					//error occured
+					console.log("auth error: "+resp.msg);
+					getLoginChallenge();
+					//we CAN'T reload challenging image by randomly choosing one!
+					//$("#captchaImage").attr("src",URL_HSNUGRADE+"image/vcode.asp?vcode="+Math.floor(Math.random()*Math.pow(2,32)-1));
+
+				}else{
+					console.log("Auth ok!")
+				}
+			}
+		});
+
+	}
+	</script>
+</body>
+</html>

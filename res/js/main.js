@@ -1,13 +1,13 @@
 /**!
  * HSNUGrades
  * http://hsnu.qov.tw/
- * 
+ *
  * A rewritten HTML5 score querying system!
  *
  * @version alpha-7
  * @date    2014-11-30
  *
- * @license https://gnu.org/licenses/gpl.html GNU-GPL
+ * @license github.com/andy0130tw/hsnu-grades/blob/master/LICENSE Apache
  */
 
 var App=new (Backbone.View.extend({
@@ -240,7 +240,7 @@ App.Models.Loader=Backbone.Model.extend({
 		return str;
 	},
 	initialize:function(){
-		
+
 	},
 	parse:function(resp){
 		var action=this.get("action");
